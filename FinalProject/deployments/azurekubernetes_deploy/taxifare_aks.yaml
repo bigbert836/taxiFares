@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: taxifare-prediction
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: taxifare-prediction
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  minReadySeconds: 5 
+  template:
+    metadata:
+      labels:
+        app: taxifare-prediction
+    spec:
+      nodeSelector:
+        "beta.kubernetes.io/os": linux
+      containers:
+      - name: taxifare-prediction
+        image: finalprojectcis395.azurecr.io/taxifare
+        ports:
+        - containerPort: 5010
+        resources:
+          requests:
+            cpu: 250m
+          limits:
+            cpu: 500m        
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: taxifare-prediction
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 5010
+  selector:
+    app: taxifare-prediction
